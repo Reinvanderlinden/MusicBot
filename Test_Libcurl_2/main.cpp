@@ -1,11 +1,11 @@
+﻿#include <fstream>
 #include <iostream>
 #include <curl/curl.h>
 #include <string>
 #include <bits/stdc++.h>
-#include <fstream>
 //#include <QJsonArray>
 
-int i = 0;
+int i = 1;
 std::string request_string;
 std::string call_token ="Authorization: Bearer ";
 std::string call_token_2 ="Authorization: Basic ";
@@ -13,26 +13,33 @@ std::string refresh_token;
 std::string refresh_token_2 ="MGRlYWNjNDEwYzNkNDZhZWI3MDFmYTJiZDJlZjZjOWQ6ZTk3NjIzY2I4NzM4NGQwY2EyMGFkYTA2NTA2OWY3YzE=";
 char buffer[272];
 struct curl_slist* headers;
-char request_chararray[562];
-char refresh_chararray[562];
 
 std::string response_string;
 std::string header_string;
 std::size_t length;
-std::fstream myfile;
+
+using namespace std;
 
 size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data) {
     data->append((char*) ptr, size * nmemb);
     return size * nmemb;
 }
 
-int main(int argc, char** argv) {
+int main() {
     auto curl = curl_easy_init();
     if (curl) {
-        run:
+        char request_chararray[562];
+        char refresh_chararray[562];
+        int volume = 50;
+
+        char data[270];
+        ofstream outfile;
+        ifstream infile;
+
         switch (i) {
         case 0:
             //Request token
+            outfile.open("token.dat");
             request_string = "https://accounts.spotify.com/api/token";
             request_string.copy(request_chararray, request_string.size() + 1);
             request_chararray[request_string.size()] = '\0';
@@ -45,7 +52,6 @@ int main(int argc, char** argv) {
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "grant_type=refresh_token&refresh_token=AQCalr4m192b3kBz-lQJPY5d4zPNDI5MJbB6FJ_ASwvsW6kCvSR9FOVC-u_JDe6ZBSdsXq0vhKNYqJ_2sLUyO_jyOAcoaljnKN6GKdRzedkTBLV6H8VLTYzbIz2JuPc6Px0");
 
             headers = NULL;
-            //headers = curl_slist_append(headers, "Content-Type: application/json");
             headers = curl_slist_append(headers, refresh_chararray);
             curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
@@ -55,21 +61,19 @@ int main(int argc, char** argv) {
             curl_easy_perform(curl);
 
             length = response_string.copy(buffer,270,17);
-            buffer[length]='\0';
-
-            myfile.open ("Token.txt", std::ios::trunc);
-            myfile << buffer;
-            myfile.close();
-
+            outfile << buffer;
 
             break;
         case 1:
-            //test
+            //info about player
+            infile.open("token.dat");
             request_string = "https://api.spotify.com/v1/me/player";
             request_string.copy(request_chararray, request_string.size() + 1);
             request_chararray[request_string.size()] = '\0';
 
-            refresh_token = "BQAzCfPjoGFxCSgBpzLST2h_UcitfNl-509vii8Na0MWFrvNXgmmDGZuHxaBk8OsmQ9yptya9Hh7Rg_u4ybnFLOL4M-kKMNpVbGngdZkOBXr6uaCo8ry923DOf8Y0Go8GmX_WhZWGxEgzoqb5xbnCrPfwXUBnNSdpXhWKt1_ROWncn35z5cpwNoZ77Pdgisi2dRF3q6QV_c661qgRnAZQqws67__X3IYj5IbCvf0qRmwxo21L66-7_sOK2E8saGS9d2eDJDoRDV8tQ";
+            infile >> data;
+            refresh_token = data;
+            //cout << refresh_token << endl;
 
             call_token = call_token + refresh_token;
             call_token.copy(refresh_chararray, call_token.size() + 1);
@@ -89,10 +93,109 @@ int main(int argc, char** argv) {
             curl_easy_perform(curl);
 
             break;
+        case 2:
+            //Press Play
+            infile.open("token.dat");
+            request_string = "https://api.spotify.com/v1/me/player/play";
+            request_string.copy(request_chararray, request_string.size() + 1);
+            request_chararray[request_string.size()] = '\0';
+
+            refresh_token = "BQCUaLFW_fCtpb6nelylM3H_SaIy1tCJMbgY6xiCoKP-k9HVFEo-jlVTichCXCC4avwP_j1T5CoVv16HVDAoFE8I3_6X-UUn7GfKktF1PyA2h45tC50nO0PD0xreW7xBtcHK8Q61kb37DjJSw1hhjTM8LwjXcl2ZxJfUcm0vowC85taTlTvGaAd4evvsZe4omdcHGNDBbFraKLCcGF4ZF7h6Cg2579W-l0EPwz5AQBoc3SvP1jAHIAiqTnxWjwEhDhw_jzpmhFrVkA";
+
+            call_token = call_token + refresh_token;
+            call_token.copy(refresh_chararray, call_token.size() + 1);
+            refresh_chararray[call_token.size()] = '\0';
+
+               curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+               curl_easy_setopt(curl, CURLOPT_PUT, 1L);
+               curl_easy_setopt(curl, CURLOPT_URL, request_chararray);
+               curl_easy_setopt(curl, CURLOPT_READDATA, "");
+               curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,0);
+
+            headers = NULL;
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+            headers = curl_slist_append(headers, refresh_chararray);
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+
+            curl_easy_perform(curl);
+
+            break;
+        case 3:
+            //Press Pauze
+            infile.open("token.dat");
+            request_string = "https://api.spotify.com/v1/me/player/pauze";
+            request_string.copy(request_chararray, request_string.size() + 1);
+            request_chararray[request_string.size()] = '\0';
+
+            refresh_token = "BQC27Ry_-HNYYBhUPX38ckxGvz3QO9xiowC4Bx1xsrVWM16uCAaul3rXPX570EmQ6Bs1nzn622T8Su1OD286taO8ilZ--A1JlclF-n60BhrpqUQv0zoaEBqC44qVXR0kI99Ckqm2x3RshtklaIGv-e-SqW4XlJJsj9b50-YVmCvd5K9YbYVkfiJkQRew23bxboaTxfzlFmkWXPvW9tFUXfua_ct3wNij4JopGp6dzwM_1atQCV-vDHxBDRVH8VX4wdcvxX9rU4VdTw";
+
+            call_token = call_token + refresh_token;
+            call_token.copy(refresh_chararray, call_token.size() + 1);
+            refresh_chararray[call_token.size()] = '\0';
+
+               curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+               curl_easy_setopt(curl, CURLOPT_PUT, 1L);
+               curl_easy_setopt(curl, CURLOPT_URL, request_chararray);
+               curl_easy_setopt(curl, CURLOPT_READDATA, "");
+               curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,0);
+
+            headers = NULL;
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+            headers = curl_slist_append(headers, refresh_chararray);
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+
+            curl_easy_perform(curl);
+
+            break;
+
+        case 4:
+            //Set Volume
+            infile.open("token.dat");
+            request_string = "https://api.spotify.com/v1/me/player/volume?volume_percent=";
+            call_token = call_token + std::to_string(volume);
+            request_string.copy(request_chararray, request_string.size() + 1);
+            request_chararray[request_string.size()] = '\0';
+
+            refresh_token = "BQC27Ry_-HNYYBhUPX38ckxGvz3QO9xiowC4Bx1xsrVWM16uCAaul3rXPX570EmQ6Bs1nzn622T8Su1OD286taO8ilZ--A1JlclF-n60BhrpqUQv0zoaEBqC44qVXR0kI99Ckqm2x3RshtklaIGv-e-SqW4XlJJsj9b50-YVmCvd5K9YbYVkfiJkQRew23bxboaTxfzlFmkWXPvW9tFUXfua_ct3wNij4JopGp6dzwM_1atQCV-vDHxBDRVH8VX4wdcvxX9rU4VdTw";
+
+            call_token = call_token + refresh_token;
+            call_token.copy(refresh_chararray, call_token.size() + 1);
+            refresh_chararray[call_token.size()] = '\0';
+
+               curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+               curl_easy_setopt(curl, CURLOPT_PUT, 1L);
+               curl_easy_setopt(curl, CURLOPT_URL, request_chararray);
+               curl_easy_setopt(curl, CURLOPT_READDATA, "");
+               curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,0);
+
+            headers = NULL;
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+            headers = curl_slist_append(headers, refresh_chararray);
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+
+            curl_easy_perform(curl);
+
+            break;
+           case 5:
+            break;
 
         }
-        std::cout << "Response String:" << response_string << '\n';
+        cout << "Response String:" << response_string << '\n';
 
+        outfile.close();
+        infile.close();
         curl_easy_cleanup(curl);
         curl = NULL;
     }
