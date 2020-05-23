@@ -5,7 +5,7 @@
 #include <bits/stdc++.h>
 //#include <QJsonArray>
 
-int i = 1;
+int i = 3;
 std::string request_string;
 std::string call_token ="Authorization: Bearer ";
 std::string call_token_2 ="Authorization: Basic ";
@@ -26,6 +26,7 @@ size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data) {
 }
 
 int main() {
+
     auto curl = curl_easy_init();
     if (curl) {
         char request_chararray[562];
@@ -63,6 +64,7 @@ int main() {
             length = response_string.copy(buffer,270,17);
             outfile << buffer;
 
+            outfile.close();
             break;
         case 1:
             //info about player
@@ -100,7 +102,8 @@ int main() {
             request_string.copy(request_chararray, request_string.size() + 1);
             request_chararray[request_string.size()] = '\0';
 
-            refresh_token = "BQCUaLFW_fCtpb6nelylM3H_SaIy1tCJMbgY6xiCoKP-k9HVFEo-jlVTichCXCC4avwP_j1T5CoVv16HVDAoFE8I3_6X-UUn7GfKktF1PyA2h45tC50nO0PD0xreW7xBtcHK8Q61kb37DjJSw1hhjTM8LwjXcl2ZxJfUcm0vowC85taTlTvGaAd4evvsZe4omdcHGNDBbFraKLCcGF4ZF7h6Cg2579W-l0EPwz5AQBoc3SvP1jAHIAiqTnxWjwEhDhw_jzpmhFrVkA";
+            infile >> data;
+            refresh_token = data;
 
             call_token = call_token + refresh_token;
             call_token.copy(refresh_chararray, call_token.size() + 1);
@@ -125,13 +128,14 @@ int main() {
 
             break;
         case 3:
-            //Press Pauze
+            //Press pause
             infile.open("token.dat");
-            request_string = "https://api.spotify.com/v1/me/player/pauze";
+            request_string = "https://api.spotify.com/v1/me/player/pause";
             request_string.copy(request_chararray, request_string.size() + 1);
             request_chararray[request_string.size()] = '\0';
 
-            refresh_token = "BQC27Ry_-HNYYBhUPX38ckxGvz3QO9xiowC4Bx1xsrVWM16uCAaul3rXPX570EmQ6Bs1nzn622T8Su1OD286taO8ilZ--A1JlclF-n60BhrpqUQv0zoaEBqC44qVXR0kI99Ckqm2x3RshtklaIGv-e-SqW4XlJJsj9b50-YVmCvd5K9YbYVkfiJkQRew23bxboaTxfzlFmkWXPvW9tFUXfua_ct3wNij4JopGp6dzwM_1atQCV-vDHxBDRVH8VX4wdcvxX9rU4VdTw";
+            infile >> data;
+            refresh_token = data;
 
             call_token = call_token + refresh_token;
             call_token.copy(refresh_chararray, call_token.size() + 1);
@@ -155,7 +159,6 @@ int main() {
             curl_easy_perform(curl);
 
             break;
-
         case 4:
             //Set Volume
             infile.open("token.dat");
@@ -164,7 +167,8 @@ int main() {
             request_string.copy(request_chararray, request_string.size() + 1);
             request_chararray[request_string.size()] = '\0';
 
-            refresh_token = "BQC27Ry_-HNYYBhUPX38ckxGvz3QO9xiowC4Bx1xsrVWM16uCAaul3rXPX570EmQ6Bs1nzn622T8Su1OD286taO8ilZ--A1JlclF-n60BhrpqUQv0zoaEBqC44qVXR0kI99Ckqm2x3RshtklaIGv-e-SqW4XlJJsj9b50-YVmCvd5K9YbYVkfiJkQRew23bxboaTxfzlFmkWXPvW9tFUXfua_ct3wNij4JopGp6dzwM_1atQCV-vDHxBDRVH8VX4wdcvxX9rU4VdTw";
+            infile >> data;
+            refresh_token = data;
 
             call_token = call_token + refresh_token;
             call_token.copy(refresh_chararray, call_token.size() + 1);
@@ -192,9 +196,13 @@ int main() {
             break;
 
         }
+        std::size_t found = response_string.find("\"status\": 40");
+          if (found!=std::string::npos)
+            {
+                cout<<"boem"<<endl;
+            }
         cout << "Response String:" << response_string << '\n';
 
-        outfile.close();
         infile.close();
         curl_easy_cleanup(curl);
         curl = NULL;
