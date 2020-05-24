@@ -5,7 +5,7 @@
 #include <bits/stdc++.h>
 //#include <QJsonArray>
 
-int i = 3;
+int i = 7;
 std::string request_string;
 std::string call_token ="Authorization: Bearer ";
 std::string call_token_2 ="Authorization: Basic ";
@@ -16,6 +16,8 @@ struct curl_slist* headers;
 
 std::string response_string;
 std::string header_string;
+std::string search_string = "Mijn%20Stad";
+std::string end_string;
 std::size_t length;
 
 using namespace std;
@@ -32,7 +34,7 @@ int main() {
         char request_chararray[562];
         char refresh_chararray[562];
         int volume = 50;
-
+        std::size_t found;
         char data[270];
         ofstream outfile;
         ifstream infile;
@@ -163,7 +165,7 @@ int main() {
             //Set Volume
             infile.open("token.dat");
             request_string = "https://api.spotify.com/v1/me/player/volume?volume_percent=";
-            call_token = call_token + std::to_string(volume);
+            request_string = request_string + std::to_string(volume);
             request_string.copy(request_chararray, request_string.size() + 1);
             request_chararray[request_string.size()] = '\0';
 
@@ -192,15 +194,107 @@ int main() {
             curl_easy_perform(curl);
 
             break;
-           case 5:
+           case 5: //Next
+                infile.open("token.dat");
+                request_string = "https://api.spotify.com/v1/me/player/next";
+                request_string.copy(request_chararray, request_string.size() + 1);
+                request_chararray[request_string.size()] = '\0';
+
+                infile >> data;
+                refresh_token = data;
+
+                call_token = call_token + refresh_token;
+                call_token.copy(refresh_chararray, call_token.size() + 1);
+                refresh_chararray[call_token.size()] = '\0';
+
+                curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+                curl_easy_setopt(curl, CURLOPT_PUT, 1L);
+                curl_easy_setopt(curl, CURLOPT_URL, request_chararray);
+                curl_easy_setopt(curl, CURLOPT_READDATA, "");
+                curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,0);
+
+                headers = NULL;
+                headers = curl_slist_append(headers, "Content-Type: application/json");
+                headers = curl_slist_append(headers, refresh_chararray);
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+                curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+
+                curl_easy_perform(curl);
             break;
+            case 6: //PREV
+                infile.open("token.dat");
+                request_string = "https://api.spotify.com/v1/me/player/previous";
+                request_string.copy(request_chararray, request_string.size() + 1);
+                request_chararray[request_string.size()] = '\0';
+
+                infile >> data;
+                refresh_token = data;
+
+                call_token = call_token + refresh_token;
+                call_token.copy(refresh_chararray, call_token.size() + 1);
+                refresh_chararray[call_token.size()] = '\0';
+
+                curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+                curl_easy_setopt(curl, CURLOPT_PUT, 1L);
+                curl_easy_setopt(curl, CURLOPT_URL, request_chararray);
+                curl_easy_setopt(curl, CURLOPT_READDATA, "");
+                curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE,0);
+
+                headers = NULL;
+                headers = curl_slist_append(headers, "Content-Type: application/json");
+                headers = curl_slist_append(headers, refresh_chararray);
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+                curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+
+                curl_easy_perform(curl);
+             break;
+            case 7: //Search
+                infile.open("token.dat");
+                end_string = "&type=track&market=be&limit=1";
+                request_string = "https://api.spotify.com/v1/search?q=";
+
+                request_string = request_string + search_string + end_string;
+
+                request_string.copy(request_chararray, request_string.size() + 1);
+                request_chararray[request_string.size()] = '\0';
+
+                infile >> data;
+                refresh_token = data;
+
+                call_token = call_token + refresh_token;
+                call_token.copy(refresh_chararray, call_token.size() + 1);
+                refresh_chararray[call_token.size()] = '\0';
+
+                curl_easy_setopt(curl, CURLOPT_URL, request_chararray);
+
+                headers = NULL;
+                headers = curl_slist_append(headers, "Content-Type: application/json");
+                headers = curl_slist_append(headers, refresh_chararray);
+                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+                curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+
+                curl_easy_perform(curl);
+
+                found = response_string.find_last_of("\"spotify\":");
+                  if (found!=std::string::npos)
+                        cout << "found" << endl;
+             break;
+            case 8:
+             break;
+            case 9:
+             break;
 
         }
-        std::size_t found = response_string.find("\"status\": 40");
-          if (found!=std::string::npos)
-            {
-                cout<<"boem"<<endl;
-            }
+
         cout << "Response String:" << response_string << '\n';
 
         infile.close();
