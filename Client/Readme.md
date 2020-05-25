@@ -7,7 +7,7 @@ This project is a C++ bot that controls Spotify, running over a broker. The Soft
   * [Client](https://github.com/Reinvanderlinden/MusicBot/tree/master/Client)
   * [Server](https://github.com/Reinvanderlinden/MusicBot/tree/master/Server)
 
-# Requered Parts!
+# Required Parts!
 
   - ZMQ (cppzmq used here)
   - Spotify API (Web API used here)
