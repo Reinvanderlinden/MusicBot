@@ -14,10 +14,10 @@ EQ            = =
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DZMQ_STATIC -DQT_QML_DEBUG
-CFLAGS        = -pipe -g -Wall -Wextra -fPIC $(DEFINES)
-CXXFLAGS      = -pipe -g -Wall -Wextra -fPIC $(DEFINES)
-INCPATH       = -I../ZMQonC_Desktop -I. -I../include -I/home/elmo/Qt/5.14.2/gcc_64/mkspecs/linux-g++
+DEFINES       = -DZMQ_STATIC -DQT_GUI_LIB -DQT_CORE_LIB -DQT_QML_DEBUG
+CFLAGS        = -pipe -g -D_REENTRANT -Wall -Wextra -fPIC $(DEFINES)
+CXXFLAGS      = -pipe -g -std=gnu++11 -D_REENTRANT -Wall -Wextra -fPIC $(DEFINES)
+INCPATH       = -I../ZMQonC_Desktop -I. -I../include -I/home/elmo/Qt/5.14.2/gcc_64/include -I/home/elmo/Qt/5.14.2/gcc_64/include/QtGui -I/home/elmo/Qt/5.14.2/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I/home/elmo/Qt/5.14.2/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/elmo/Qt/5.14.2/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -39,8 +39,8 @@ COMPRESS      = gzip -9f
 DISTNAME      = ZMQonC1.0.0
 DISTDIR = /home/elmo/Documents/git/MusicBot/Connection/build-ZMQonC-Desktop_Qt_5_14_2_GCC_64bit-Debug/.tmp/ZMQonC1.0.0
 LINK          = g++
-LFLAGS        = 
-LIBS          = $(SUBLIBS) -L/home/elmo/Documents/git/MusicBot/Connection/ZMQonC_Desktop/../lib -lzmq -lws2_32 -lIphlpapi   
+LFLAGS        = -Wl,-rpath,/home/elmo/Qt/5.14.2/gcc_64/lib
+LIBS          = $(SUBLIBS) -lcurl -L/home/elmo/Documents/git/MusicBot/Connection/ZMQonC_Desktop/../lib -lzmq -lws2_32 -lIphlpapi /home/elmo/Qt/5.14.2/gcc_64/lib/libQt5Gui.so /home/elmo/Qt/5.14.2/gcc_64/lib/libQt5Core.so -lGL -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -250,6 +250,12 @@ DIST          = /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/spec_pre.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/default_pre.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/resolve_config.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/default_post.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/qt.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/resources_functions.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/resources.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/moc.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/unix/opengl.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/unix/thread.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/qml_debug.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/warn_on.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/qmake_use.prf \
@@ -466,6 +472,12 @@ Makefile: ../ZMQonC_Desktop/ZMQonC.pro /home/elmo/Qt/5.14.2/gcc_64/mkspecs/linux
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/default_pre.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/resolve_config.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/default_post.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/qt.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/resources_functions.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/resources.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/moc.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/unix/opengl.prf \
+		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/unix/thread.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/qml_debug.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/warn_on.prf \
 		/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/qmake_use.prf \
@@ -672,6 +684,12 @@ Makefile: ../ZMQonC_Desktop/ZMQonC.pro /home/elmo/Qt/5.14.2/gcc_64/mkspecs/linux
 /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/default_pre.prf:
 /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/resolve_config.prf:
 /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/default_post.prf:
+/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/qt.prf:
+/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/resources_functions.prf:
+/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/resources.prf:
+/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/moc.prf:
+/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/unix/opengl.prf:
+/home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/unix/thread.prf:
 /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/qml_debug.prf:
 /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/warn_on.prf:
 /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/qmake_use.prf:
@@ -695,6 +713,8 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
+	$(COPY_FILE) --parents /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/data/dummy.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents ../ZMQonC_Desktop/main.c $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -709,21 +729,71 @@ distclean: clean
 
 ####### Sub-libraries
 
+mocclean: compiler_moc_header_clean compiler_moc_objc_header_clean compiler_moc_source_clean
+
+mocables: compiler_moc_header_make_all compiler_moc_objc_header_make_all compiler_moc_source_make_all
+
 check: first
 
 benchmark: first
 
+compiler_rcc_make_all:
+compiler_rcc_clean:
+compiler_moc_predefs_make_all: moc_predefs.h
+compiler_moc_predefs_clean:
+	-$(DEL_FILE) moc_predefs.h
+moc_predefs.h: /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/data/dummy.cpp
+	g++ -pipe -g -std=gnu++11 -dM -E -o moc_predefs.h /home/elmo/Qt/5.14.2/gcc_64/mkspecs/features/data/dummy.cpp
+
+compiler_moc_header_make_all:
+compiler_moc_header_clean:
+compiler_moc_objc_header_make_all:
+compiler_moc_objc_header_clean:
+compiler_moc_source_make_all:
+compiler_moc_source_clean:
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
 compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: 
+compiler_clean: compiler_moc_predefs_clean 
 
 ####### Compile
 
-main.o: ../ZMQonC_Desktop/main.c ../include/zmq.h
+main.o: ../ZMQonC_Desktop/main.c ../include/zmq.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/QString \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qstring.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qchar.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qglobal.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qconfig-bootstrapped.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qconfig.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qtcore-config.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qsystemdetection.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qprocessordetection.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qcompilerdetection.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qtypeinfo.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qsysinfo.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qlogging.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qflags.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qatomic.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qbasicatomic.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qgenericatomic.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qatomic_cxx11.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qatomic_msvc.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qglobalstatic.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qmutex.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qnumeric.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qversiontagging.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qbytearray.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qrefcount.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qnamespace.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qarraydata.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qstringliteral.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qstringalgorithms.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qstringview.h \
+		/home/elmo/Qt/5.14.2/gcc_64/include/QtCore/qstringbuilder.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o main.o ../ZMQonC_Desktop/main.c
 
 ####### Install

@@ -1,54 +1,17 @@
-//DESKTOP
+//Linux Machine/Server
 
 #include <stdio.h>
-#include <string.h>
 #include <zmq.h>
-//#include <windows.h>
-//#include <WinUser.h>
-#include <stdbool.h>
 
-//bool clicking;
-//int x;
-//int y;
-
-void * context; //Global context, because you only need one !
-
-//void LeftClick ( )
-//{
-//    POINT cursorPos;
-//    GetCursorPos(&cursorPos);
-
-//    x = 200;
-//    y = 1080;
-//    SetCursorPos(x, y);
-//    mouse_event(MOUSEEVENTF_LEFTDOWN, x, y, 0, 0);
-//    mouse_event(MOUSEEVENTF_LEFTUP, x, y, 0, 0);
-
-//    x = (1920/2);
-//    y = 990;
-//    SetCursorPos(x, y);
-//    mouse_event(MOUSEEVENTF_LEFTDOWN, x, y, 0, 0);
-//    mouse_event(MOUSEEVENTF_LEFTUP, x, y, 0, 0);
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <curl/curl.h>
+#include <bits/stdc++.h>
+#include <QString>
 
 
-
-//    //keybd_event( VK_PLAY, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP,0);
-
-//}
-//void play_pauze()
-//{
-//    keybd_event( VK_MEDIA_PLAY_PAUSE, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0 );
-//}
-//void next_track()
-//{
-//    keybd_event( VK_MEDIA_NEXT_TRACK, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0 );
-//}
-//void prev_track()
-//{
-//    keybd_event( VK_MEDIA_PREV_TRACK, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0 );
-//    keybd_event( VK_MEDIA_PREV_TRACK, 0x45, KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP,0);
-//    keybd_event( VK_MEDIA_PREV_TRACK, 0x45, KEYEVENTF_EXTENDEDKEY | 0, 0 );
-//}
+void * context;
 
 int main( int argc, char * argv[] )
 {

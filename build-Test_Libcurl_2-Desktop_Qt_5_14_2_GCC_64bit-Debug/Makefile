@@ -14,10 +14,10 @@ EQ            = =
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_GUI_LIB -DQT_CORE_LIB -DQT_QML_DEBUG
+DEFINES       = -DZMQ_STATIC -DQT_GUI_LIB -DQT_CORE_LIB -DQT_QML_DEBUG
 CFLAGS        = -pipe -g -D_REENTRANT -Wall -Wextra -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++11 -D_REENTRANT -Wall -Wextra -fPIC $(DEFINES)
-INCPATH       = -I../Test_Libcurl_2 -I. -I../../../../Qt/5.14.2/gcc_64/include -I../../../../Qt/5.14.2/gcc_64/include/QtGui -I../../../../Qt/5.14.2/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I../../../../Qt/5.14.2/gcc_64/mkspecs/linux-g++
+INCPATH       = -I../Test_Libcurl_2 -I. -I/home/elmo/Documents/git/MusicBot/Test_Libcurl_2/../include -I../../../../Qt/5.14.2/gcc_64/include -I../../../../Qt/5.14.2/gcc_64/include/QtGui -I../../../../Qt/5.14.2/gcc_64/include/QtCore -I. -isystem /usr/include/libdrm -I../../../../Qt/5.14.2/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/elmo/Qt/5.14.2/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = Test_Libcurl_21.0.0
 DISTDIR = /home/elmo/Documents/git/MusicBot/build-Test_Libcurl_2-Desktop_Qt_5_14_2_GCC_64bit-Debug/.tmp/Test_Libcurl_21.0.0
 LINK          = g++
 LFLAGS        = -Wl,-rpath,/home/elmo/Qt/5.14.2/gcc_64/lib
-LIBS          = $(SUBLIBS) -lcurl /home/elmo/Qt/5.14.2/gcc_64/lib/libQt5Gui.so /home/elmo/Qt/5.14.2/gcc_64/lib/libQt5Core.so -lGL -lpthread   
+LIBS          = $(SUBLIBS) -lcurl -L/home/elmo/Documents/git/MusicBot/Test_Libcurl_2/../lib -lzmq /home/elmo/Qt/5.14.2/gcc_64/lib/libQt5Gui.so /home/elmo/Qt/5.14.2/gcc_64/lib/libQt5Core.so -lGL -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -762,7 +762,39 @@ compiler_clean: compiler_moc_predefs_clean
 
 ####### Compile
 
-main.o: ../Test_Libcurl_2/main.cpp 
+main.o: ../Test_Libcurl_2/main.cpp ../../../../Qt/5.14.2/gcc_64/include/QtCore/QString \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qstring.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qchar.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qglobal.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qconfig-bootstrapped.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qconfig.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qtcore-config.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qsystemdetection.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qprocessordetection.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qcompilerdetection.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qtypeinfo.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qsysinfo.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qlogging.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qflags.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qatomic.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qbasicatomic.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qatomic_bootstrap.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qgenericatomic.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qatomic_cxx11.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qatomic_msvc.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qglobalstatic.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qmutex.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qnumeric.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qversiontagging.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qbytearray.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qrefcount.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qnamespace.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qarraydata.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qstringliteral.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qstringalgorithms.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qstringview.h \
+		../../../../Qt/5.14.2/gcc_64/include/QtCore/qstringbuilder.h \
+		../Test_Libcurl_2/zmq.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o ../Test_Libcurl_2/main.cpp
 
 ####### Install

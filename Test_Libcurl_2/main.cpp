@@ -5,6 +5,16 @@
 #include <bits/stdc++.h>
 #include <QString>
 
+#include <zmq.hpp>
+
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QFile>
+#include <QVariant>
+#include <QJsonArray>
+#include <QDebug>
+
+
 
 int i = 2;
 std::string call_token ="Authorization: Bearer ";
@@ -13,7 +23,7 @@ std::string refresh_token_2 ="MGRlYWNjNDEwYzNkNDZhZWI3MDFmYTJiZDJlZjZjOWQ6ZTk3Nj
 char buffer[270];
 struct curl_slist* headers;
 
-
+void * context;
 using namespace std;
 //Function to get curl output
 size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data)
@@ -159,11 +169,59 @@ int main() {
         QString response_Qstring;
         bool ok = 1;
 
-        string temp_string;
+        string tmp_string;
         string search_string = "Mijn%20Stad";
         int volume = 50;
 
-        switch (i) {
+        printf("Started\n");
+           zmq::context_t ctx;
+
+           zmq::socket_t pusher(ctx, zmq::socket_type::push);
+           zmq::socket_t subscriber(ctx, zmq::socket_type::sub);
+
+           pusher.connect("tcp://benternet.pxl-ea-ict.be:24041");
+           subscriber.connect("tcp://benternet.pxl-ea-ict.be:24042");
+
+           char push_string[] = "musicbot?>Rein van der Linden>";
+           char sub_string[] = "musicbot!>Rein van der Linden>";
+
+           //pusher.set(zmq::sockopt::subscribe,push_string);
+           subscriber.set(zmq::sockopt::subscribe,sub_string);
+           //subscriber.setsockopt(ZMQ_SUBSCRIBE,sub_string, strlen(sub_string));
+
+           char temp_string[256] = "";
+           char temp_string_2[256] = "";
+
+           loop:
+           char temp_string_3[] = "musicbot?>Rein van der Linden>";
+
+           printf("Type command...\n");
+           cin >> temp_string;
+
+           strcat(temp_string_3,temp_string);
+           strcat(temp_string_3,">");
+           cout << temp_string_3 << endl;
+
+           zmq::message_t send;
+           send = zmq::message_t(temp_string_3);
+           cout << "send " << send.to_string() << endl;
+           pusher.send(send, zmq::send_flags::none);
+
+           printf("listening\n");
+           zmq::message_t request;
+           //receive a request from client
+           subscriber.recv(request, zmq::recv_flags::none);
+           cout << "Received " << request.to_string() << endl;
+
+
+           goto loop;
+
+           pusher.close();
+           subscriber.close();
+           ctx.shutdown();
+
+
+        switch (8) {
         case 0:
             ok = HTTP_REFRESH_TOKEN_PUT();
             break;
@@ -177,9 +235,9 @@ int main() {
             response_Qstring = HTTP_PUT("https://api.spotify.com/v1/me/player/pause");
             break;
         case 4:
-            temp_string = "https://api.spotify.com/v1/me/player/volume?volume_percent=";
-            temp_string = temp_string + std::to_string(volume);
-            response_Qstring = HTTP_PUT(temp_string);
+            tmp_string = "https://api.spotify.com/v1/me/player/volume?volume_percent=";
+            tmp_string = tmp_string + std::to_string(volume);
+            response_Qstring = HTTP_PUT(tmp_string);
             break;
         case 5:
             response_Qstring = HTTP_PUT("https://api.spotify.com/v1/me/player/next");
@@ -225,5 +283,22 @@ int main() {
 
         }
         cout << "Response String:" << response_Qstring.toStdString() << "bool:" << ok << '\n';
+
+        QByteArray json_bytes = response_Qstring.toLocal8Bit();
+        auto json_doc=QJsonDocument::fromJson(json_bytes);
+
+        QJsonObject json_obj=json_doc.object();
+        QJsonObject root_obj = json_doc.object();
+        QVariantMap root_map = root_obj.toVariantMap();
+        QVariantMap tracks_map = root_map["tracks"].toMap();
+
+        QJsonArray  items_arr = tracks_map["items"].toJsonArray();
+        QJsonValue  items_val = items_arr.at(0);
+        QJsonObject items_obj = items_val.toObject();
+        QVariantMap items_map = items_obj.toVariantMap();
+
+        qDebug() << "ID : " << items_map["id"].toString();
+
+        return 0;
 
     }
