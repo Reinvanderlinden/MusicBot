@@ -26,7 +26,7 @@ size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data)
     return size * nmemb;
 }
 //Function to perform HTTP Get AND FIND
-QString HTTP_GET_AND_FIND(string request_string, string search_term)
+QString HTTP_GET_AND_FIND(string search_term)
 {
     auto curl = curl_easy_init();
     ifstream infile;
@@ -34,9 +34,11 @@ QString HTTP_GET_AND_FIND(string request_string, string search_term)
     char refresh_chararray[562];
     char data[270];
     string response_string;
+    string request_string;
     string header_string;
     string end_string;
     string search_string;
+    string word;
     string call_token ="Authorization: Bearer ";
     struct curl_slist* headers;
 
@@ -45,7 +47,18 @@ QString HTTP_GET_AND_FIND(string request_string, string search_term)
     end_string = "&type=track&market=be&limit=1";
     request_string = "https://api.spotify.com/v1/search?q=";
 
-
+    for (auto x : search_term)
+       {
+           if (x == ' ')
+           {
+               search_string = search_string + word+ "%20";
+               word = "";
+           }
+           else
+           {
+               word = word + x;
+           }
+       }
 
     request_string = request_string + search_string + end_string;
 
@@ -273,13 +286,80 @@ bool HTTP_REFRESH_TOKEN_PUT()
 
     return result;
 }
+//Function to check if token is not expired
+void error_check()
+{
+    bool ok = 1;
+    QString response_out;
+    auto curl = curl_easy_init();
+    ifstream infile;
+    char request_chararray[562];
+    char refresh_chararray[562];
+    char data[270];
+    string response_string;
+    QString response_Qstring;
+    string request_string = "https://api.spotify.com/v1/me/player";
+    string header_string;
+    string call_token ="Authorization: Bearer ";
+    struct curl_slist* headers;
 
+    infile.open("token.dat");
+    request_string.copy(request_chararray, request_string.size() + 1);
+    request_chararray[request_string.size()] = '\0';
+
+    infile >> data;
+    string refresh_token = "";
+    refresh_token = data;
+
+
+    call_token = call_token + refresh_token;
+    call_token.copy(refresh_chararray, call_token.size() + 1);
+    refresh_chararray[call_token.size()] = '\0';
+
+    curl_easy_setopt(curl, CURLOPT_URL, request_chararray);
+
+    headers = NULL;
+    headers = curl_slist_append(headers, "Content-Type: application/json");
+    headers = curl_slist_append(headers, refresh_chararray);
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
+    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
+
+    curl_easy_perform(curl);
+
+    infile.close();
+    curl_easy_cleanup(curl);
+    curl = NULL;
+
+    response_Qstring = QString::fromStdString(response_string);
+
+    QByteArray json_bytes = response_Qstring.toLocal8Bit();
+    auto json_doc=QJsonDocument::fromJson(json_bytes);
+
+    QJsonObject json_obj=json_doc.object();
+    QJsonObject root_obj = json_doc.object();
+    QVariantMap root_map = root_obj.toVariantMap();
+    QVariantMap tracks_map = root_map["error"].toMap();
+
+    QJsonArray  items_arr = tracks_map["items"].toJsonArray();
+    QJsonValue  items_val = items_arr.at(0);
+    QJsonObject items_obj = items_val.toObject();
+    QVariantMap items_map = items_obj.toVariantMap();
+
+    response_out = items_map["status"].toString();
+
+    if (response_out =="401" || response_out =="404")
+     {
+        ok = HTTP_REFRESH_TOKEN_PUT();
+     }
+}
 int main() {
         QString response_Qstring;
         bool ok = 1;
 
         string tmp_string;
-        string search_string = "Mijn%20Stad";
         int volume = 50;
         loop:
         printf("Started\n");
@@ -299,9 +379,7 @@ int main() {
 
            //char temp_string[256] = "";
            char string[1000] = "";
-
-           //ok = HTTP_REFRESH_TOKEN_PUT();
-
+           char editable_string[1000] = "";
 
            printf("listening to requests...\n");
            zmq::message_t request;
@@ -324,25 +402,26 @@ int main() {
 
            if(strstr(cmd_string,"play") != 0)
            {
+            error_check();
             strcpy(send_string,"musicbot!>Rein van der Linden>playing>");
             response_Qstring = HTTP_PUT("https://api.spotify.com/v1/me/player/play");
            }
-           else if(strstr(string,"pause") != 0)
+           else if(strstr(cmd_string,"pause") != 0)
            {
             strcpy(send_string,"musicbot!>Rein van der Linden>pause...>");
             response_Qstring = HTTP_PUT("https://api.spotify.com/v1/me/player/pause");
            }
-           else if(strstr(string,"next") != 0)
+           else if(strstr(cmd_string,"next") != 0)
            {
             strcpy(send_string,"musicbot!>Rein van der Linden>next track...>");
             response_Qstring = HTTP_POST("https://api.spotify.com/v1/me/player/next");
            }
-           else if(strstr(string,"prev") != 0)
+           else if(strstr(cmd_string,"prev") != 0)
            {
             strcpy(send_string,"musicbot!>Rein van der Linden>prev track...>");
             response_Qstring = HTTP_POST("https://api.spotify.com/v1/me/player/previous");
            }
-           else if(strstr(string,"volume") != 0)
+           else if(strstr(cmd_string,"volume") != 0)
            {
               stringstream str_strm;
               str_strm << cmd_string;
@@ -362,38 +441,54 @@ int main() {
             tmp_string = tmp_string + std::to_string(volume);
             response_Qstring = HTTP_PUT(tmp_string);
            }
-           else if(strstr(string,"find") != 0)
+           else if(strstr(cmd_string,"find") != 0)
            {
             strcpy(send_string,"musicbot!>Rein van der Linden>looking up>");
 
-            stringstream str_strm;
-            str_strm << cmd_string;
-            std::string temp_str;
-            int temp_int;
-            while(!str_strm.eof()) {
-                   str_strm >> temp_str;
-                   if(stringstream(temp_str) >> temp_int) {
-                      volume = temp_int;
-                   }
-                   temp_str = "";
-                }
+            strcpy(editable_string,cmd_string);
 
-            backup_string[strlen(string)-1] = '\0';
-            char *backup_string  = strrchr(string,'>');
-            for(int i= 1; i <= strlen(backup_string);i++)
+            for(int i = 3;i < strlen(editable_string);i++)
             {
-                backup_string[i-1] = backup_string[i];
+                editable_string[i-5] = editable_string[i];
             }
-            printf("command: %s\n", backup_string);
+            for(int i = (strlen(editable_string) - 4);i < strlen(editable_string);i++)
+            {
+                editable_string[i] = ' ';
+            }
+            editable_string[(strlen(editable_string) - 4)] = '\0';
+             response_Qstring = HTTP_GET_AND_FIND(editable_string);
+             QByteArray json_bytes = response_Qstring.toLocal8Bit();
+             auto json_doc=QJsonDocument::fromJson(json_bytes);
+
+             QJsonObject json_obj=json_doc.object();
+             QJsonObject root_obj = json_doc.object();
+             QVariantMap root_map = root_obj.toVariantMap();
+             QVariantMap tracks_map = root_map["tracks"].toMap();
+
+             QJsonArray  items_arr = tracks_map["items"].toJsonArray();
+             QJsonValue  items_val = items_arr.at(0);
+             QJsonObject items_obj = items_val.toObject();
+             QVariantMap items_map = items_obj.toVariantMap();
+
+             response_Qstring = items_map["id"].toString();
+             std::string url = "https://api.spotify.com/v1/me/player/queue?uri=spotify:track:";
+             char uri[1000];
+             url = url + response_Qstring.toStdString();
+             url.copy(uri, url.size() + 1);
+             uri[url.size()] = '\0';
+             response_Qstring = HTTP_POST(uri);
 
 
            }
-
+           else if(strstr(cmd_string,"token") != 0)
+           {
+              strcpy(send_string,"musicbot!>Rein van der Linden>fetching token>");
+              ok = HTTP_REFRESH_TOKEN_PUT();
+           }
            else
            {
             strcpy(send_string,"musicbot!>Rein van der Linden>i dont understand u...>");
            }
-
 
 
 
@@ -403,57 +498,7 @@ int main() {
           pusher.send(send, zmq::send_flags::none);
 
 
-        switch (8) {
-        case 4:
-            tmp_string = "https://api.spotify.com/v1/me/player/volume?volume_percent=";
-            tmp_string = tmp_string + std::to_string(volume);
-            response_Qstring = HTTP_PUT(tmp_string);
-            break;
-        case 5:
-            response_Qstring = HTTP_PUT("https://api.spotify.com/v1/me/player/next");
-            break;
-        case 6:
-            response_Qstring = HTTP_PUT("https://api.spotify.com/v1/me/player/previous");
-            break;
-        case 7: //Search
-//                std::string end_string;
-
-//                infile.open("token.dat");
-//                end_string = "&type=track&market=be&limit=1";
-//                request_string = "https://api.spotify.com/v1/search?q=";
-
-//                request_string = request_string + search_string + end_string;
-
-//                request_string.copy(request_chararray, request_string.size() + 1);
-//                request_chararray[request_string.size()] = '\0';
-
-//                infile >> data;
-//                refresh_token = data;
-
-//                call_token = call_token + refresh_token;
-//                call_token.copy(refresh_chararray, call_token.size() + 1);
-//                refresh_chararray[call_token.size()] = '\0';
-
-//                curl_easy_setopt(curl, CURLOPT_URL, request_chararray);
-
-//                headers = NULL;
-//                headers = curl_slist_append(headers, "Content-Type: application/json");
-//                headers = curl_slist_append(headers, refresh_chararray);
-//                curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-//                curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunction);
-//                curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
-//                curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
-
-//                curl_easy_perform(curl);
-
-             break;
-            case 8:
-             break;
-
-        }
-
-        cout << "Response String:" << response_Qstring.toStdString() << '\n';
+        //cout << "Response String:" << response_Qstring.toStdString() << '\n';
 
 
 
@@ -463,22 +508,6 @@ int main() {
         goto loop;
 
 
-        cout << "Response String:" << response_Qstring.toStdString() << "bool:" << ok << '\n';
-
-        QByteArray json_bytes = response_Qstring.toLocal8Bit();
-        auto json_doc=QJsonDocument::fromJson(json_bytes);
-
-        QJsonObject json_obj=json_doc.object();
-        QJsonObject root_obj = json_doc.object();
-        QVariantMap root_map = root_obj.toVariantMap();
-        QVariantMap tracks_map = root_map["tracks"].toMap();
-
-        QJsonArray  items_arr = tracks_map["items"].toJsonArray();
-        QJsonValue  items_val = items_arr.at(0);
-        QJsonObject items_obj = items_val.toObject();
-        QVariantMap items_map = items_obj.toVariantMap();
-
-        qDebug() << "ID : " << items_map["id"].toString();
 
         return 0;
 
