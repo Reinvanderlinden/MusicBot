@@ -3,7 +3,10 @@
 #include <curl/curl.h>
 #include <string>
 #include <bits/stdc++.h>
-//#include <QJsonArray>
+
+#include <QJsonDocument>
+#include <QByteArray>
+#include <QString>
 
 int i = 7;
 std::string request_string;
@@ -38,6 +41,10 @@ int main() {
         char data[270];
         ofstream outfile;
         ifstream infile;
+
+        QString response_Qstring;
+        QByteArray json_bytes;
+        QJsonDocument JsonDoc;
 
         switch (i) {
         case 0:
@@ -284,9 +291,16 @@ int main() {
 
                 curl_easy_perform(curl);
 
-                found = response_string.find_last_of("\"spotify\":");
-                  if (found!=std::string::npos)
-                        cout << "found" << endl;
+//                found = response_string.find_last_of("\"spotify\":");
+//                  if (found!=std::string::npos)
+//                        cout << "found" << endl;
+                response_Qstring = QString::fromStdString(response_string);
+                json_bytes = response_Qstring.toLocal8Bit();
+
+                JsonDoc = QJsonDocument::fromJson(json_bytes);
+                QJsonObject *JsonObj =  JsonDoc.object();
+                QMap<QString, QVariant> *JsonVar = JsonDoc.toVariant();
+
              break;
             case 8:
              break;
@@ -295,7 +309,7 @@ int main() {
 
         }
 
-        cout << "Response String:" << response_string << '\n';
+        //cout << "Response String:" << response_string << '\n';
 
         infile.close();
         curl_easy_cleanup(curl);
