@@ -324,7 +324,6 @@ int main() {
             string tmp_string;
             int volume = 50;
             loop:
-            printf("Started\n");
                zmq::context_t ctx;
 
                zmq::socket_t pusher(ctx, zmq::socket_type::push);
@@ -533,7 +532,7 @@ int main() {
               pusher.send(send, zmq::send_flags::none);
 
 
-            //cout << "Response String:" << response_Qstring.toStdString() << '\n';
+            cout << "Response String:" << response_Qstring.toStdString() << '\n';
 
 
 
