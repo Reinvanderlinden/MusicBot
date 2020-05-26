@@ -31,9 +31,9 @@ This project is a C++ bot that controls Spotify, running over a broker. The Soft
 ### error
 
 if it doesnt work there are 3 pssible fixes
-*first check if spotify is open somewere
-*ask for 'token' to get a new refresh token
-*there was another error - restart client
+- first check if spotify is open somewere
+- ask for 'token' to get a new refresh token
+- there was another error - restart client
 
 Made by
 ----
