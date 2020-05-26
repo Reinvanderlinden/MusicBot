@@ -25,6 +25,15 @@ This project is a C++ bot that controls Spotify, running over a broker. The Soft
 | prev | starts previous song  on spotify |
 | find | looks up a song on spotify and adds the top song as next on queue (uses the words after find as query) |
 | volume | changes volume to last nurmer after volume |
+| current | returns current song playing |
+| devices | change device playing on (working proogress currently disabled) |
+
+### error
+
+if it doesnt work there are 3 pssible fixes
+- first check if spotify is open somewere
+- ask for 'token' to get a new refresh token
+- there was another error - restart client
 
 Made by
 ----
