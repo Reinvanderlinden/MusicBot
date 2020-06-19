@@ -285,11 +285,12 @@ bool HTTP_REFRESH_TOKEN_PUT()
 string error_check(QString response_Qstring)
 {
     bool ok;
-    string error = 0;
+    string error = "0";
     QString response_out;
+    QString response_out_2;
 
-    if (response_Qstring == NULL){
-        return "0";
+    if (response_Qstring.isEmpty()){
+        return "NONE";
     }
     else
     {
@@ -304,14 +305,15 @@ string error_check(QString response_Qstring)
     QJsonObject items_obj = tracks_map["error"].toJsonObject();
     QVariantMap items_map = items_obj.toVariantMap();
 
+    response_out_2 = tracks_map["reason"].toString();
     response_out = tracks_map["status"].toString();
-    cout << response_out.toStdString() << endl;
+    //cout << response_out.toStdString() << endl;
 
-    if (response_out.toStdString() == "401" ||response_out.toStdString() == "404")
-     {
-        ok = HTTP_REFRESH_TOKEN_PUT();
-     }
-        return response_out.toStdString();
+//    if (response_out.toStdString() == "401" ||response_out.toStdString() == "404")
+//     {
+//        ok = HTTP_REFRESH_TOKEN_PUT();
+//     }
+        return response_out_2.toStdString();
     }
 
 }
@@ -323,7 +325,7 @@ int main() {
 
             string tmp_string;
             int volume = 50;
-            loop:
+
                zmq::context_t ctx;
 
                zmq::socket_t pusher(ctx, zmq::socket_type::push);
@@ -337,7 +339,7 @@ int main() {
 
                //pusher.set(zmq::sockopt::subscribe,push_string);
                subscriber.set(zmq::sockopt::subscribe,sub_string);
-
+              loop:
                //char temp_string[256] = "";
                char string[1000] = "";
                char editable_string[1000] = "";
@@ -359,13 +361,12 @@ int main() {
                    cmd_string[i-1] = cmd_string[i];
                }
                cout << cmd_string << endl;
-               char send_string[] = "";
+               char send_string[] = " ";
 
                if(strstr(cmd_string,"play") != 0)
                {
                 response_Qstring = HTTP_PUT("https://api.spotify.com/v1/me/player/play");
                 strcpy(send_string,"musicbot!>Rein van der Linden>playing>");
-
                }
                else if(strstr(cmd_string,"pause") != 0)
                {
@@ -376,6 +377,51 @@ int main() {
                {
                 strcpy(send_string,"musicbot!>Rein van der Linden>next track...>");
                 response_Qstring = HTTP_POST("https://api.spotify.com/v1/me/player/next");
+               }
+               else if(strstr(cmd_string,"queue") != 0)
+               {
+                   stringstream str_strm;
+                   str_strm << cmd_string;
+                   std::string temp_str;
+                   int temp_int;
+                   while(!str_strm.eof()) {
+                          str_strm >> temp_str;
+                          if(stringstream(temp_str) >> temp_int) {
+                             volume = temp_int;
+                          }
+                          temp_str = "";
+                       }
+                  for(int i = 0; i <= temp_int;i++)
+                      {
+                      response_Qstring = HTTP_POST("https://api.spotify.com/v1/me/player/next");
+                  }
+
+                  response_Qstring = HTTP_GET("https://api.spotify.com/v1/me/player/currently-playing");
+                  QByteArray json_bytes = response_Qstring.toLocal8Bit();
+                  auto json_doc=QJsonDocument::fromJson(json_bytes);
+
+                  QJsonObject json_obj=json_doc.object();
+                  QJsonObject root_obj = json_doc.object();
+                  QVariantMap root_map = root_obj.toVariantMap();
+                  QVariantMap tracks_map = root_map["item"].toMap();
+
+                  QJsonObject items_obj = tracks_map["item"].toJsonObject();
+                  QVariantMap items_map = items_obj.toVariantMap();
+
+                  QString song_name = tracks_map["name"].toString();
+                  std::string song_name_str = song_name.toStdString();
+                  cout << song_name_str << endl;
+                  char song_arr[1000];
+                  std::string begin_str_resp = "musicbot!>Rein van der Linden>The song u are looking for is ";
+                  begin_str_resp = begin_str_resp + song_name_str + ">";
+                  begin_str_resp.copy(song_arr, begin_str_resp.size() + 1);
+                  song_arr[begin_str_resp.size()] = '\0';
+                  strcpy(send_string,song_arr);
+                  for(int i = 0; i <= temp_int;i++)
+                      {
+                      response_Qstring = HTTP_POST("https://api.spotify.com/v1/me/player/previous");
+                  }
+                  response_Qstring = HTTP_PUT("https://api.spotify.com/v1/me/player/pause");
                }
                else if(strstr(cmd_string,"prev") != 0)
                {
@@ -427,8 +473,9 @@ int main() {
                 {
                     editable_string[i] = ' ';
                 }
-                editable_string[(strlen(editable_string) - 4)] = '\0';
+                 editable_string[(strlen(editable_string) - 4)] = '\0';
                  response_Qstring = HTTP_GET_AND_FIND(editable_string);
+
                  QByteArray json_bytes = response_Qstring.toLocal8Bit();
                  auto json_doc=QJsonDocument::fromJson(json_bytes);
 
@@ -463,7 +510,7 @@ int main() {
                   QByteArray json_bytes = response_Qstring.toLocal8Bit();
                   auto json_doc=QJsonDocument::fromJson(json_bytes);
 
-                  QJsonObject json_obj=json_doc.object();
+                  QJsonObject json_obj = json_doc.object();
                   QJsonObject root_obj = json_doc.object();
                   QVariantMap root_map = root_obj.toVariantMap();
                   QVariantMap tracks_map = root_map["item"].toMap();
@@ -481,49 +528,48 @@ int main() {
                   strcpy(send_string,song_arr);
 
                }
-//               else if(strstr(cmd_string,"device") != 0)
-//               {
-//                  response_Qstring = HTTP_GET("https://api.spotify.com/v1/me/player/devices");
+               else if(strstr(cmd_string,"list") != 0)
+               {
+                    response_Qstring = HTTP_GET("https://api.spotify.com/v1/me/playlists");
 
-//                  QByteArray json_bytes = response_Qstring.toLocal8Bit();
-//                  auto json_doc=QJsonDocument::fromJson(json_bytes);
+                    QByteArray json_bytes = response_Qstring.toLocal8Bit();
+                    auto json_doc=QJsonDocument::fromJson(json_bytes);
 
-//                  QJsonObject json_obj = json_doc.object();
-//                  QJsonObject root_obj = json_doc.object();
-//                  QVariantMap root_map = root_obj.toVariantMap();
-//                  QJsonArray  items_arr = root_map["devices"].toJsonArray();
+                    QJsonObject json_obj = json_doc.object();
+                    QJsonObject root_obj = json_doc.object();
+                    QVariantMap root_map = root_obj.toVariantMap();
+                    QVariantMap tracks_map = root_map["items"].toMap();
 
-//                  QJsonValue  items_val = items_arr.at(0);
-//                  QJsonObject items_obj = items_val.toObject();
-//                  QVariantMap items_map = items_obj.toVariantMap();
+                    QJsonObject items_obj = tracks_map["items"].toJsonObject();
+                    QVariantMap items_map = items_obj.toVariantMap();
 
-//                   QString ID;
-//                  if (items_map["is_active"].toString()=="false")
-//                  {
+                    QVariantMap tracks_map_2 = items_map["0"].toMap();
 
-//                      ID = items_map["id"].toString();
-//                  }
+                    QJsonObject items_obj_2 = tracks_map_2["0"].toJsonObject();
+                    QVariantMap items_map_2 = items_obj.toVariantMap();
 
-//                  cout << response_Qstring.toStdString() << endl;
+                    QVariantMap tracks_map_2 = items_map["0"].toMap();
 
-//                  std::string ID_str = ID.toStdString();
-//                  cout << ID.toStdString() << endl;
-//                  char ID_arr[1000];
-//                  std::string begin_str_resp = "https://api.spotify.com/v1/me/player/pause?device_id=";
-//                  begin_str_resp = begin_str_resp + ID_str;
-//                  begin_str_resp.copy(ID_arr, begin_str_resp.size() + 1);
-//                  ID_arr[begin_str_resp.size()] = '\0';
-//                  response_Qstring = HTTP_PUT(ID_arr);
-//                  cout << response_Qstring.toStdString() << endl;
+                    QJsonObject items_obj_2 = tracks_map_2["0"].toJsonObject();
+                    QVariantMap items_map_2 = items_obj.toVariantMap();
 
-//                  strcpy(send_string,"musicbot!>Rein van der Linden>u switched devices i hope...>");
+                    QString list_name = tracks_map_2["name"].toString();
+                    std::string list_name_str = list_name.toStdString();
 
-//               }
+                    cout << list_name_str << endl;
+
+                    char list_arr[1000];
+                    std::string begin_str_resp = "musicbot!>Rein van der Linden>First item is ";
+                    begin_str_resp = begin_str_resp + list_name_str + ">";
+                    begin_str_resp.copy(list_arr, begin_str_resp.size() + 1);
+                    list_arr[begin_str_resp.size()] = '\0';
+                    strcpy(send_string,list_arr);
+
+               }
                else
                {
                 strcpy(send_string,"musicbot!>Rein van der Linden>i dont understand u...>");
                }
-
 
 
               size_t t = (strlen(send_string)+1);
@@ -532,14 +578,14 @@ int main() {
               pusher.send(send, zmq::send_flags::none);
 
 
-            cout << "Response String:" << response_Qstring.toStdString() << '\n';
+            //cout << "Response String:" << response_Qstring.toStdString() << '\n';
 
-
+            goto loop;
 
             pusher.close();
             subscriber.close();
             ctx.shutdown();
-            goto loop;
+
 
 
 
