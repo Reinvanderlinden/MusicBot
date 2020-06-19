@@ -45,6 +45,11 @@ int main( int argc, char * argv[] )
     send = zmq::message_t(temp_string_3, t);
     pusher.send(send, zmq::send_flags::none);
 
+    for(int i = 0; i < 10000; i++)
+    {
+      int g = i;
+    }
+
     printf("Response...\n");
 
     zmq::message_t request;
